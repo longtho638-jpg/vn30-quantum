@@ -1,19 +1,33 @@
-version: '3.8'
-
 # ═══════════════════════════════════════════════════════
-# VN30-QUANTUM IRON DOME SECURITY
-# All services hidden behind Nginx gatekeeper
+# VN30-QUANTUM ZERO TRUST SECURITY
+# Cloudflare Tunnel - No Ports Exposed
 # ═══════════════════════════════════════════════════════
 
 services:
   # ═══════════════════════════════════════════════════════
-  # 🛡️ GATEKEEPER (Public Entry Point - Port 80 only)
+  # 🚇 CLOUDFLARE TUNNEL (The Ghost Protocol)
+  # ═══════════════════════════════════════════════════════
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: vn30_tunnel
+    restart: always
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN:-your_tunnel_token_here}
+    networks:
+      - quantum_net
+    depends_on:
+      - nginx
+
+  # ═══════════════════════════════════════════════════════
+  # 🛡️ NGINX GATEKEEPER (Internal Only)
   # ═══════════════════════════════════════════════════════
   nginx:
     image: nginx:alpine
     container_name: vn30_gatekeeper
-    ports:
-      - "80:80" # Only public port
+    # NO PORTS EXPOSED - Only tunnel can access
+    expose:
+      - "80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -28,20 +42,20 @@ services:
       retries: 3
 
   # ═══════════════════════════════════════════════════════
-  # 🗄️ TIME-SERIES DATABASE (Hidden)
+  # 🗄️ TIME-SERIES DATABASE (Internal)
   # ═══════════════════════════════════════════════════════
   influxdb:
     image: influxdb:2.7
     container_name: vn30_influxdb
     expose:
-      - "8086" # Only visible to internal network
+      - "8086"
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
       - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=admin12345678
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUX_PASSWORD:-admin12345678}
       - DOCKER_INFLUXDB_INIT_ORG=vnquant
       - DOCKER_INFLUXDB_INIT_BUCKET=market_data
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN:-my-super-secret-auth-token}
     volumes:
       - influxdb_data:/var/lib/influxdb2
     networks:
@@ -54,7 +68,7 @@ services:
     restart: unless-stopped
 
   # ═══════════════════════════════════════════════════════
-  # 💾 CACHE LAYER (Hidden)
+  # 💾 CACHE LAYER (Internal)
   # ═══════════════════════════════════════════════════════
   redis:
     image: redis:7-alpine
@@ -74,21 +88,22 @@ services:
     restart: unless-stopped
 
   # ═══════════════════════════════════════════════════════
-  # 📊 DASHBOARD (Hidden behind Nginx)
+  # 📊 GRAFANA DASHBOARD (Internal)
   # ═══════════════════════════════════════════════════════
   grafana:
     image: grafana/grafana:latest
     container_name: vn30_grafana
     expose:
-      - "3000" # Not exposed to public
+      - "3000"
     depends_on:
       influxdb:
         condition: service_healthy
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
       - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/
+      - GF_SERVER_ROOT_URL=https://${DOMAIN:-localhost}/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=false
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
@@ -96,7 +111,7 @@ services:
     restart: unless-stopped
 
   # ═══════════════════════════════════════════════════════
-  # 🎯 HUNTER - Data Collector (Hidden)
+  # 🎯 HUNTER - Data Collector (Internal)
   # ═══════════════════════════════════════════════════════
   hunter:
     build: ./hunter
@@ -104,7 +119,7 @@ services:
     restart: always
     environment:
       - INFLUX_URL=http://influxdb:8086
-      - INFLUX_TOKEN=my-super-secret-auth-token
+      - INFLUX_TOKEN=${INFLUX_TOKEN:-my-super-secret-auth-token}
       - INFLUX_ORG=vnquant
       - INFLUX_BUCKET=market_data
       - TARGET_STOCKS=
@@ -119,7 +134,7 @@ services:
       - quantum_net
 
   # ═══════════════════════════════════════════════════════
-  # 🔮 ORACLE - AI Analyst (Hidden)
+  # 🔮 ORACLE - AI Analyst (Internal)
   # ═══════════════════════════════════════════════════════
   analyst:
     build: ./analyst
@@ -127,10 +142,9 @@ services:
     restart: always
     environment:
       - INFLUX_URL=http://influxdb:8086
-      - INFLUX_TOKEN=my-super-secret-auth-token
+      - INFLUX_TOKEN=${INFLUX_TOKEN:-my-super-secret-auth-token}
       - INFLUX_ORG=vnquant
       - INFLUX_BUCKET=market_data
-      # Telegram (configure these)
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
     depends_on:
@@ -150,7 +164,7 @@ volumes:
   redis_data:
 
     # ═══════════════════════════════════════════════════════
-    # 🔒 PRIVATE NETWORK (Iron Dome)
+    # 🔒 PRIVATE NETWORK (Zero Trust)
     # ═══════════════════════════════════════════════════════
 networks:
   quantum_net:
