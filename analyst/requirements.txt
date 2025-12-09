@@ -2,6 +2,7 @@
 # Professional Technical Analysis Library
 
 pandas>=2.0.0
-pandas_ta>=0.3.14
-influxdb-client>=1.40.0
 numpy>=1.24.0
+influxdb-client>=1.40.0
+ta>=0.11.0
+

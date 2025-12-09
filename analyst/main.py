@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """
 VN30-Quantum Analyst - The Quantum Brain
-Professional Technical Analysis using pandas_ta
+Professional Technical Analysis using ta library
 """
 import time
 import os
 import pandas as pd
-import pandas_ta as ta
+import numpy as np
 from datetime import datetime
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
+
+# Technical Analysis library
+import ta
+from ta.momentum import RSIIndicator, StochasticOscillator
+from ta.trend import MACD, SMAIndicator, EMAIndicator
+from ta.volatility import BollingerBands
 
 # ═══════════════════════════════════════════════════════
 # CONFIG
@@ -45,12 +51,12 @@ print(f"""
 {Colors.PURPLE}{Colors.BOLD}
 ╔═══════════════════════════════════════════════════════╗
 ║        🧠 VN30-QUANTUM ANALYST                       ║
-║        The Quantum Brain - pandas_ta Edition          ║
+║        The Quantum Brain - TA Library Edition         ║
 ╚═══════════════════════════════════════════════════════╝
 {Colors.RESET}
 🎯 Phân tích: {Colors.BOLD}{len(VN30_STOCKS)} mã VN30{Colors.RESET}
 📡 Database: {INFLUX_URL}
-🔬 Engine: pandas_ta (Professional Quant Library)
+🔬 Engine: ta library (Technical Analysis)
 📊 Chỉ báo: RSI, MACD, Bollinger Bands, Stochastic
 """)
 
@@ -65,6 +71,7 @@ try:
 except Exception as e:
     print(f"{Colors.RED}❌ Lỗi kết nối InfluxDB: {e}{Colors.RESET}")
     exit(1)
+
 
 # ═══════════════════════════════════════════════════════
 # ANALYSIS FUNCTION
@@ -107,33 +114,36 @@ def analyze_stock(symbol: str) -> dict:
         df = pd.DataFrame(records)
         df = df.set_index('time')
         
-        # 2. TÍNH TOÁN CHỈ BÁO VỚI pandas_ta
+        # 2. TÍNH TOÁN CHỈ BÁO VỚI ta library
         
         # RSI (14 periods)
-        df['RSI'] = df.ta.rsi(length=14)
+        rsi_indicator = RSIIndicator(close=df['close'], window=14)
+        df['RSI'] = rsi_indicator.rsi()
         
         # MACD (12, 26, 9)
-        macd = df.ta.macd(fast=12, slow=26, signal=9)
-        if macd is not None:
-            df = pd.concat([df, macd], axis=1)
+        macd_indicator = MACD(close=df['close'], window_slow=26, window_fast=12, window_sign=9)
+        df['MACD'] = macd_indicator.macd()
+        df['MACD_signal'] = macd_indicator.macd_signal()
+        df['MACD_hist'] = macd_indicator.macd_diff()
         
         # Bollinger Bands (20, 2)
-        bbands = df.ta.bbands(length=20, std=2)
-        if bbands is not None:
-            df = pd.concat([df, bbands], axis=1)
+        bb_indicator = BollingerBands(close=df['close'], window=20, window_dev=2)
+        df['BB_upper'] = bb_indicator.bollinger_hband()
+        df['BB_lower'] = bb_indicator.bollinger_lband()
+        df['BB_mid'] = bb_indicator.bollinger_mavg()
         
-        # Stochastic (14, 3, 3)
-        stoch = df.ta.stoch(k=14, d=3, smooth_k=3)
-        if stoch is not None:
-            df = pd.concat([df, stoch], axis=1)
+        # Stochastic (14, 3)
+        stoch_indicator = StochasticOscillator(high=df['high'], low=df['low'], close=df['close'], window=14, smooth_window=3)
+        df['Stoch_k'] = stoch_indicator.stoch()
+        df['Stoch_d'] = stoch_indicator.stoch_signal()
         
         # SMA (20, 50)
-        df['SMA_20'] = df.ta.sma(length=20)
-        df['SMA_50'] = df.ta.sma(length=50)
+        df['SMA_20'] = SMAIndicator(close=df['close'], window=20).sma_indicator()
+        df['SMA_50'] = SMAIndicator(close=df['close'], window=50).sma_indicator()
         
         # EMA (12, 26)
-        df['EMA_12'] = df.ta.ema(length=12)
-        df['EMA_26'] = df.ta.ema(length=26)
+        df['EMA_12'] = EMAIndicator(close=df['close'], window=12).ema_indicator()
+        df['EMA_26'] = EMAIndicator(close=df['close'], window=26).ema_indicator()
         
         # Lấy dòng cuối cùng
         last = df.iloc[-1]
@@ -160,9 +170,9 @@ def analyze_stock(symbol: str) -> dict:
                 reasons.append(f"RSI={rsi:.1f} Gần quá mua")
         
         # === MACD Rules ===
-        macd_val = last.get('MACD_12_26_9', 0)
-        macd_signal = last.get('MACDs_12_26_9', 0)
-        macd_hist = last.get('MACDh_12_26_9', 0)
+        macd_val = last.get('MACD', 0)
+        macd_signal = last.get('MACD_signal', 0)
+        macd_hist = last.get('MACD_hist', 0)
         
         if pd.notna(macd_val) and pd.notna(macd_signal):
             if macd_hist > 0 and macd_val > macd_signal:
@@ -173,9 +183,9 @@ def analyze_stock(symbol: str) -> dict:
                 reasons.append("MACD cắt xuống 📉")
         
         # === Bollinger Bands Rules ===
-        bb_lower = last.get('BBL_20_2.0', 0)
-        bb_upper = last.get('BBU_20_2.0', 0)
-        bb_mid = last.get('BBM_20_2.0', 0)
+        bb_lower = last.get('BB_lower', 0)
+        bb_upper = last.get('BB_upper', 0)
+        bb_mid = last.get('BB_mid', 0)
         
         if pd.notna(bb_lower) and pd.notna(bb_upper) and bb_lower > 0:
             if price < bb_lower:
@@ -186,8 +196,8 @@ def analyze_stock(symbol: str) -> dict:
                 reasons.append("Giá chạm BB trên 🔴")
         
         # === Stochastic Rules ===
-        stoch_k = last.get('STOCHk_14_3_3', 50)
-        stoch_d = last.get('STOCHd_14_3_3', 50)
+        stoch_k = last.get('Stoch_k', 50)
+        stoch_d = last.get('Stoch_d', 50)
         
         if pd.notna(stoch_k):
             if stoch_k < 20:
