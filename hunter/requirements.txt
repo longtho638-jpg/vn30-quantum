@@ -1,0 +1,8 @@
+vnstock
+pandas
+influxdb-client
+requests
+beautifulsoup4
+lxml
+packaging
+ipython
