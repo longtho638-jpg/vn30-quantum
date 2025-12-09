@@ -1,0 +1,72 @@
+{
+    "common": {
+        "brand": "VN30-QUANTUM",
+        "tagline": "TƯƠNG LAI GIAO DỊCH",
+        "login": "Đăng nhập",
+        "signup": "Đăng ký",
+        "dashboard": "Bảng điều khiển",
+        "pricing": "Bảng giá",
+        "beta": "Truy cập Beta",
+        "affiliate": "Đối tác",
+        "support": "Hỗ trợ",
+        "terms": "Điều khoản",
+        "privacy": "Bảo mật"
+    },
+    "landing": {
+        "heroTitle": "GIAO DỊCH",
+        "heroSubtitle": "THÔNG MINH AI",
+        "heroDescription": "Tận dụng sức mạnh của học máy thế hệ mới để dự đoán biến động cổ phiếu VN30 với độ chính xác chưa từng có.",
+        "startButton": "BẮT ĐẦU HÀNH TRÌNH",
+        "watchDemo": "Xem Demo"
+    },
+    "pricing": {
+        "title": "ĐƠN GIẢN, MINH BẠCH",
+        "titleHighlight": "BẢNG GIÁ",
+        "subtitle": "Bắt đầu miễn phí, nâng cấp khi cần. Không phí ẩn. Hủy bất cứ lúc nào.",
+        "monthly": "Hàng tháng",
+        "yearly": "Hàng năm",
+        "savePercent": "(-17%)",
+        "getStarted": "Bắt đầu ngay",
+        "contactSales": "Liên hệ Sales",
+        "mostPopular": "Phổ biến nhất",
+        "plans": {
+            "starter": {
+                "name": "Starter",
+                "description": "Hoàn hảo cho người mới"
+            },
+            "pro": {
+                "name": "Pro",
+                "description": "Cho trader chủ động"
+            },
+            "enterprise": {
+                "name": "Enterprise",
+                "description": "Cho tổ chức"
+            }
+        }
+    },
+    "beta": {
+        "badge": "TRUY CẬP BETA GIỚI HẠN",
+        "title": "THAM GIA",
+        "titleHighlight": "QUANTUM BETA",
+        "subtitle": "Trở thành một trong 100 trader đầu tiên sử dụng sức mạnh AI Oracle.",
+        "slotsLabel": "SỐ CHỖ CÒN LẠI",
+        "submit": "YÊU CẦU TRUY CẬP BETA",
+        "loading": "ĐANG XỬ LÝ...",
+        "successTitle": "Bạn đã vào!",
+        "successMessage": "Chào mừng đến Quantum Elite. Kiểm tra email để nhận mã truy cập."
+    },
+    "affiliate": {
+        "badge": "KIẾM 20% MÃI MÃI",
+        "title": "HỢP TÁC VỚI",
+        "titleHighlight": "TƯƠNG LAI",
+        "subtitle": "Tham gia chương trình đối tác và kiếm hoa hồng định kỳ bằng cách giới thiệu trader đến AI Oracle tiên tiến nhất thế giới.",
+        "applyButton": "Đăng ký làm Đối tác"
+    },
+    "dashboard": {
+        "liveSignals": "TÍN HIỆU TRỰC TIẾP",
+        "receiving": "ĐANG NHẬN",
+        "marketScanner": "QUÉT THỊ TRƯỜNG VN30",
+        "bullish": "TĂNG GIÁ",
+        "bearish": "GIẢM GIÁ"
+    }
+}

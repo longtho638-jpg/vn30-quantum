@@ -1,0 +1,72 @@
+{
+    "common": {
+        "brand": "VN30-QUANTUM",
+        "tagline": "THE FUTURE OF TRADING",
+        "login": "Login",
+        "signup": "Sign Up",
+        "dashboard": "Dashboard",
+        "pricing": "Pricing",
+        "beta": "Beta Access",
+        "affiliate": "Affiliate",
+        "support": "Support",
+        "terms": "Terms",
+        "privacy": "Privacy"
+    },
+    "landing": {
+        "heroTitle": "AI-POWERED TRADING",
+        "heroSubtitle": "INTELLIGENCE",
+        "heroDescription": "Harness the power of next-gen machine learning to predict VN30 stock movements with unprecedented precision.",
+        "startButton": "START YOUR JOURNEY",
+        "watchDemo": "Watch Demo"
+    },
+    "pricing": {
+        "title": "SIMPLE, TRANSPARENT",
+        "titleHighlight": "PRICING",
+        "subtitle": "Start free, upgrade when you need more. No hidden fees. Cancel anytime.",
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "savePercent": "(-17%)",
+        "getStarted": "Get Started",
+        "contactSales": "Contact Sales",
+        "mostPopular": "Most Popular",
+        "plans": {
+            "starter": {
+                "name": "Starter",
+                "description": "Perfect for beginners"
+            },
+            "pro": {
+                "name": "Pro",
+                "description": "For active traders"
+            },
+            "enterprise": {
+                "name": "Enterprise",
+                "description": "For institutions"
+            }
+        }
+    },
+    "beta": {
+        "badge": "LIMITED BETA ACCESS",
+        "title": "JOIN THE",
+        "titleHighlight": "QUANTUM BETA",
+        "subtitle": "Be among the first 100 traders to wield the power of AI Oracle.",
+        "slotsLabel": "AVAILABLE SLOTS",
+        "submit": "REQUEST BETA ACCESS",
+        "loading": "INITIATING...",
+        "successTitle": "You're In!",
+        "successMessage": "Welcome to the Quantum Elite. Check your email for your access codes."
+    },
+    "affiliate": {
+        "badge": "EARN 20% FOREVER",
+        "title": "PARTNER WITH",
+        "titleHighlight": "THE FUTURE",
+        "subtitle": "Join our affiliate program and earn recurring commissions by introducing traders to the world's most advanced AI Oracle.",
+        "applyButton": "Apply for Partner Account"
+    },
+    "dashboard": {
+        "liveSignals": "LIVE SIGNALS",
+        "receiving": "RECEIVING",
+        "marketScanner": "VN30 MARKET SCANNER",
+        "bullish": "BULLISH",
+        "bearish": "BEARISH"
+    }
+}
