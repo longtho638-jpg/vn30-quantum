@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VN30-Quantum | Pitch Deck 2026</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #00d4aa;
+            --secondary: #0a1628;
+            --accent: #ff6b35;
+            --dark: #050d1a;
+            --light: #e0e6ed;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+        }
+        
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            position: relative;
+            border-bottom: 2px solid rgba(0, 212, 170, 0.2);
+        }
+        
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(0, 212, 170, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            font-size: 14px;
+            color: var(--primary);
+            opacity: 0.7;
+        }
+        
+        h1 {
+            font-size: 4rem;
+            background: linear-gradient(135deg, var(--primary), #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+        
+        .tagline {
+            font-size: 1.8rem;
+            color: var(--light);
+            opacity: 0.9;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 6rem;
+            margin-bottom: 20px;
+        }
+        
+        .content {
+            max-width: 1000px;
+            width: 100%;
+            z-index: 1;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .card {
+            background: rgba(10, 22, 40, 0.8);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 212, 170, 0.2);
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .metric-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            color: var(--light);
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+        
+        ul {
+            list-style: none;
+            font-size: 1.2rem;
+            line-height: 2;
+        }
+        
+        ul li::before {
+            content: '→';
+            color: var(--primary);
+            margin-right: 15px;
+        }
+        
+        .pain-point {
+            color: #ff6b6b;
+        }
+        
+        .pain-point::before {
+            content: '✗';
+            color: #ff6b6b;
+        }
+        
+        .solution-point::before {
+            content: '✓';
+            color: var(--primary);
+        }
+        
+        .pricing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        
+        .pricing-table th {
+            background: rgba(0, 212, 170, 0.2);
+            padding: 20px;
+            text-align: left;
+            color: var(--primary);
+        }
+        
+        .pricing-table td {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, var(--primary), #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), #00ffcc);
+            color: var(--dark);
+            padding: 20px 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 50px;
+            text-decoration: none;
+            margin-top: 40px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 40px rgba(0, 212, 170, 0.4);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #00ffcc);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .tech-stack {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        
+        .tech-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(10, 22, 40, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 170, 0.3);
+        }
+        
+        .tech-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        @media print {
+            .slide { page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Cover -->
+<section class="slide">
+    <span class="slide-number">01 / 12</span>
+    <div class="content" style="text-align: center;">
+        <div class="logo">📈</div>
+        <h1>VN30-Quantum</h1>
+        <p class="tagline">Smart Trading for Vietnam's VN30 Index</p>
+        <p style="font-size: 1.2rem; opacity: 0.7; margin-top: 40px;">
+            Pre-seed Pitch | December 2025
+        </p>
+    </div>
+</section>
+
+<!-- Slide 2: Problem -->
+<section class="slide">
+    <span class="slide-number">02 / 12</span>
+    <div class="content">
+        <h2>🔴 Vấn Đề</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Nhà đầu tư VN gặp khó</h3>
+                <ul>
+                    <li class="pain-point">Thiếu dữ liệu real-time chất lượng</li>
+                    <li class="pain-point">Công cụ phân tích phức tạp, đắt đỏ</li>
+                    <li class="pain-point">Không có AI signals cho thị trường VN</li>
+                    <li class="pain-point">Giao dịch thủ công kém hiệu quả</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Market Gap</h3>
+                <ul>
+                    <li class="pain-point">Nền tảng quốc tế không hỗ trợ VN30</li>
+                    <li class="pain-point">Phần mềm CTCK hạn chế tính năng</li>
+                    <li class="pain-point">Thiếu giải pháp tích hợp</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 3: Solution -->
+<section class="slide">
+    <span class="slide-number">03 / 12</span>
+    <div class="content">
+        <h2>✅ Giải Pháp: VN30-Quantum</h2>
+        <ul style="font-size: 1.4rem; max-width: 700px; margin: 0 auto;">
+            <li class="solution-point">Dữ liệu VN30 real-time (OHLCV)</li>
+            <li class="solution-point">Dashboard Grafana chuyên nghiệp</li>
+            <li class="solution-point">Phân tích kỹ thuật tự động</li>
+            <li class="solution-point">Cảnh báo giao dịch kịp thời</li>
+            <li class="solution-point">AI Trading Signals (Pro tier)</li>
+        </ul>
+        <div class="tech-stack">
+            <div class="tech-item">
+                <span class="tech-icon">🐍</span>
+                <span>Python Bot</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-icon">📊</span>
+                <span>InfluxDB</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-icon">📈</span>
+                <span>Grafana</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-icon">🤖</span>
+                <span>AI Engine</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 4: Market -->
+<section class="slide">
+    <span class="slide-number">04 / 12</span>
+    <div class="content">
+        <h2>📊 Market Opportunity</h2>
+        <div class="grid-3">
+            <div class="card metric-card">
+                <div class="metric-value">6M+</div>
+                <div class="metric-label">Tài khoản CK cá nhân VN</div>
+            </div>
+            <div class="card metric-card">
+                <div class="metric-value">30%</div>
+                <div class="metric-label">Tăng trưởng YoY</div>
+            </div>
+            <div class="card metric-card">
+                <div class="metric-value">$200M</div>
+                <div class="metric-label">TAM Trading Tools VN</div>
+            </div>
+        </div>
+        <p style="text-align: center; margin-top: 40px; font-size: 1.2rem; opacity: 0.8;">
+            Retail investor participation đang tăng mạnh → Nhu cầu công cụ trading cao
+        </p>
+    </div>
+</section>
+
+<!-- Slide 5: Business Model -->
+<section class="slide">
+    <span class="slide-number">05 / 12</span>
+    <div class="content">
+        <h2>💰 Business Model</h2>
+        <table class="pricing-table">
+            <tr>
+                <th>Tier</th>
+                <th>Price</th>
+                <th>Features</th>
+            </tr>
+            <tr>
+                <td><strong>Basic</strong></td>
+                <td>$19/month</td>
+                <td>Real-time data, Technical Analysis, Alerts</td>
+            </tr>
+            <tr>
+                <td><strong style="color: var(--primary);">Pro ⭐</strong></td>
+                <td>$49/month</td>
+                <td>Basic + AI Signals, Advanced Charts, API</td>
+            </tr>
+            <tr>
+                <td><strong>Enterprise</strong></td>
+                <td>Custom</td>
+                <td>Fintech API, Custom Integrations</td>
+            </tr>
+        </table>
+    </div>
+</section>
+
+<!-- Slide 6: Unit Economics -->
+<section class="slide">
+    <span class="slide-number">06 / 12</span>
+    <div class="content">
+        <h2>📈 Unit Economics</h2>
+        <div class="grid-2">
+            <div class="card metric-card">
+                <div class="metric-value" style="color: var(--primary);">4x</div>
+                <div class="metric-label">LTV / CAC Ratio</div>
+            </div>
+            <div class="card metric-card">
+                <div class="metric-value" style="color: var(--primary);">75%</div>
+                <div class="metric-label">Gross Margin</div>
+            </div>
+        </div>
+        <div class="grid-2" style="margin-top: 30px;">
+            <div class="card">
+                <h3>CAC</h3>
+                <p style="font-size: 2rem; color: var(--light);">~$20</p>
+            </div>
+            <div class="card">
+                <h3>LTV</h3>
+                <p style="font-size: 2rem; color: var(--primary);">~$80</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 7: Traction -->
+<section class="slide">
+    <span class="slide-number">07 / 12</span>
+    <div class="content">
+        <h2>🚀 Traction & Milestones</h2>
+        <div class="card">
+            <p style="margin-bottom: 15px;"><strong>Q2 2024:</strong> 2 fintech API partners</p>
+            <div class="progress-bar"><div class="progress-fill" style="width: 100%;">Done ✓</div></div>
+            
+            <p style="margin-bottom: 15px;"><strong>Q3 2024:</strong> 3 AI trading strategies</p>
+            <div class="progress-bar"><div class="progress-fill" style="width: 70%;">70%</div></div>
+            
+            <p style="margin-bottom: 15px;"><strong>Q4 2024:</strong> 1,000 paying subscribers</p>
+            <div class="progress-bar"><div class="progress-fill" style="width: 30%;">In Progress</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 8: Revenue Projections -->
+<section class="slide">
+    <span class="slide-number">08 / 12</span>
+    <div class="content">
+        <h2>💵 Revenue Projections</h2>
+        <div class="grid-3">
+            <div class="card metric-card">
+                <h3 style="color: #888;">Conservative</h3>
+                <div class="metric-value" style="font-size: 2rem;">1B VND</div>
+                <div class="metric-label">Year 1</div>
+            </div>
+            <div class="card metric-card" style="border-color: var(--primary); transform: scale(1.05);">
+                <h3>Base Case</h3>
+                <div class="metric-value">3B VND</div>
+                <div class="metric-label">Year 3</div>
+            </div>
+            <div class="card metric-card">
+                <h3 style="color: var(--accent);">Optimistic</h3>
+                <div class="metric-value" style="font-size: 2rem; color: var(--accent);">6B VND</div>
+                <div class="metric-label">Year 3</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 9: Team -->
+<section class="slide">
+    <span class="slide-number">09 / 12</span>
+    <div class="content">
+        <h2>👥 Team</h2>
+        <div class="grid-3">
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">👨‍💼</div>
+                <h3>CEO / Product</h3>
+                <p>Business Strategy<br>Market Expertise</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">👨‍💻</div>
+                <h3>CTO</h3>
+                <p>AI/ML Engineering<br>Platform Development</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">📊</div>
+                <h3>Head of Data</h3>
+                <p>Quantitative Analysis<br>Trading Algorithms</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 10: The Ask -->
+<section class="slide">
+    <span class="slide-number">10 / 12</span>
+    <div class="content" style="text-align: center;">
+        <h2>💎 The Ask</h2>
+        <div class="metric-value" style="font-size: 5rem; margin: 40px 0;">$500,000</div>
+        <p class="tagline">Pre-seed Round | Valuation: $2M - $3M</p>
+        
+        <div class="grid-3" style="margin-top: 50px;">
+            <div class="card metric-card">
+                <div class="metric-value" style="font-size: 2.5rem;">40%</div>
+                <div class="metric-label">Infrastructure</div>
+                <p style="font-size: 0.9rem; opacity: 0.7;">$200K</p>
+            </div>
+            <div class="card metric-card">
+                <div class="metric-value" style="font-size: 2.5rem;">40%</div>
+                <div class="metric-label">AI Development</div>
+                <p style="font-size: 0.9rem; opacity: 0.7;">$200K</p>
+            </div>
+            <div class="card metric-card">
+                <div class="metric-value" style="font-size: 2.5rem;">20%</div>
+                <div class="metric-label">Marketing</div>
+                <p style="font-size: 0.9rem; opacity: 0.7;">$100K</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 11: Key Metrics -->
+<section class="slide">
+    <span class="slide-number">11 / 12</span>
+    <div class="content">
+        <h2>🎯 Key Metrics Targets</h2>
+        <div class="grid-2">
+            <div class="card metric-card">
+                <div class="metric-value">$10K</div>
+                <div class="metric-label">MRR by Q4 2024</div>
+            </div>
+            <div class="card metric-card">
+                <div class="metric-value">&lt;$50</div>
+                <div class="metric-label">CAC Target</div>
+            </div>
+            <div class="card metric-card">
+                <div class="metric-value">&lt;5%</div>
+                <div class="metric-label">Monthly Churn</div>
+            </div>
+            <div class="card metric-card">
+                <div class="metric-value">&gt;70%</div>
+                <div class="metric-label">AI Signal Accuracy</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 12: Contact -->
+<section class="slide">
+    <span class="slide-number">12 / 12</span>
+    <div class="content" style="text-align: center;">
+        <div class="logo">📈</div>
+        <h1>Let's Build the Future of Trading in Vietnam</h1>
+        <p class="tagline">VN30-Quantum</p>
+        <a href="https://github.com/longtho638-jpg/vn30-quantum" class="cta-button">
+            View on GitHub →
+        </a>
+        <p style="margin-top: 40px; opacity: 0.7;">
+            📧 longtho638@gmail.com<br>
+            🌐 github.com/longtho638-jpg/vn30-quantum
+        </p>
+    </div>
+</section>
+
+</body>
+</html>
