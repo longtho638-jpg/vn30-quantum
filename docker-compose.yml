@@ -19,7 +19,7 @@ services:
     volumes:
       - influxdb_data:/var/lib/influxdb2
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -37,7 +37,7 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -88,8 +88,27 @@ services:
       redis:
         condition: service_healthy
 
+  # ═══════════════════════════════════════════════════════
+  # 🧠 BỘ NÃO PHÂN TÍCH (ANALYST - THE QUANTUM BRAIN)
+  # ═══════════════════════════════════════════════════════
+  analyst:
+    build: ./analyst
+    container_name: vn30_analyst
+    restart: always
+    environment:
+      - INFLUX_URL=http://influxdb:8086
+      - INFLUX_TOKEN=my-super-secret-auth-token
+      - INFLUX_ORG=vnquant
+      - INFLUX_BUCKET=market_data
+    depends_on:
+      influxdb:
+        condition: service_healthy
+      hunter:
+        condition: service_started
+
 volumes:
   influxdb_data:
   grafana_data:
   redis_data:
+
 
