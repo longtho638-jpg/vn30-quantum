@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import PageWrapper from '@/components/PageWrapper';
+import { motion } from 'framer-motion';
 
 export default function PricingPage() {
     const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
@@ -11,60 +13,50 @@ export default function PricingPage() {
             name: 'Starter',
             description: 'Perfect for beginners',
             monthlyPrice: 29,
-            yearlyPrice: 290, // ~17% off
+            yearlyPrice: 290,
             features: [
                 '5 stocks monitoring',
                 'Daily signals',
                 'Email alerts',
                 'Basic dashboard',
-                'Email support',
             ],
-            notIncluded: [
-                'Telegram alerts',
-                'AI predictions',
-                'API access',
-            ],
+            notIncluded: ['Telegram alerts', 'AI predictions', 'API access'],
             popular: false,
-            color: 'gray',
+            color: 'border-white/10',
         },
         {
             id: 'pro',
             name: 'Pro',
             description: 'For active traders',
             monthlyPrice: 99,
-            yearlyPrice: 990, // ~17% off
+            yearlyPrice: 990,
             features: [
                 'All 30 VN30 stocks',
                 'Real-time signals',
                 'Telegram alerts',
                 'AI price prediction',
                 'Advanced dashboard',
-                'Priority support',
             ],
-            notIncluded: [
-                'API access',
-                'White-label',
-            ],
+            notIncluded: ['API access', 'White-label'],
             popular: true,
-            color: 'purple',
+            color: 'neon-border bg-purple-500/10',
         },
         {
             id: 'enterprise',
             name: 'Enterprise',
             description: 'For institutions',
             monthlyPrice: 499,
-            yearlyPrice: 4990, // ~17% off
+            yearlyPrice: 4990,
             features: [
                 'Everything in Pro',
                 'API access (100k calls)',
                 'Custom alerts',
                 'White-label option',
                 'Dedicated support',
-                'SLA guarantee',
             ],
             notIncluded: [],
             popular: false,
-            color: 'blue',
+            color: 'border-white/10',
         },
     ];
 
@@ -89,148 +81,99 @@ export default function PricingPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+        <PageWrapper>
             {/* Header */}
-            <section className="container mx-auto px-6 py-20 text-center">
-                <h1 className="text-5xl font-bold mb-6">
-                    Simple, Transparent Pricing
-                </h1>
-                <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
-                    Start free, upgrade when you need more. No hidden fees.
-                </p>
-
-                {/* Billing Toggle */}
-                <div className="flex items-center justify-center gap-4 mb-12">
-                    <span className={billingPeriod === 'monthly' ? 'text-white' : 'text-gray-400'}>Monthly</span>
-                    <button
-                        onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly')}
-                        className="relative w-16 h-8 bg-purple-600 rounded-full p-1 transition"
-                    >
-                        <div
-                            className={`w-6 h-6 bg-white rounded-full transition-transform ${billingPeriod === 'yearly' ? 'translate-x-8' : ''
-                                }`}
-                        />
-                    </button>
-                    <span className={billingPeriod === 'yearly' ? 'text-white' : 'text-gray-400'}>
-                        Yearly <span className="text-green-400 text-sm">(Save 17%)</span>
-                    </span>
+            <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center mb-16"
+            >
+                <div className="inline-block px-4 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-sm text-cyan-400 mb-6">
+                    💎 UNLOCK THE POWER
                 </div>
-            </section>
+                <h1 className="text-5xl md:text-6xl font-black mb-6 tracking-tight">
+                    SIMPLE, TRANSPARENT <span className="text-hologram">PRICING</span>
+                </h1>
+                <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+                    Start free, upgrade when you need more. No hidden fees.
+                    Cancel anytime.
+                </p>
+            </motion.section>
+
+            {/* Billing Toggle */}
+            <div className="flex items-center justify-center gap-6 mb-16">
+                <span className={`text-lg transition ${billingPeriod === 'monthly' ? 'text-white font-bold' : 'text-gray-500'}`}>Monthly</span>
+                <button
+                    onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly')}
+                    className="relative w-20 h-10 rounded-full p-1 transition shadow-[0_0_20px_rgba(139,92,246,0.3)] bg-gradient-to-r from-purple-600 to-pink-600"
+                >
+                    <motion.div
+                        layout
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        className={`w-8 h-8 bg-white rounded-full shadow-lg ${billingPeriod === 'yearly' ? 'ml-auto' : ''}`}
+                    />
+                </button>
+                <span className={`text-lg transition ${billingPeriod === 'yearly' ? 'text-white font-bold' : 'text-gray-500'}`}>
+                    Yearly <span className="text-green-400 text-sm font-semibold ml-2">(-17%)</span>
+                </span>
+            </div>
 
             {/* Pricing Cards */}
-            <section className="container mx-auto px-6 pb-20">
-                <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                    {plans.map((plan) => (
-                        <div
-                            key={plan.id}
-                            className={`relative rounded-2xl p-8 border ${plan.popular
-                                    ? 'bg-gradient-to-b from-purple-600/20 to-pink-600/20 border-purple-500/50'
-                                    : 'bg-white/5 border-white/10'
+            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-20">
+                {plans.map((plan, i) => (
+                    <motion.div
+                        key={plan.id}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        className={`glass-liquid rounded-[2rem] p-10 relative group ${plan.color}`}
+                    >
+                        {plan.popular && (
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-400 to-purple-400 text-black font-bold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.5)]">
+                                Most Popular
+                            </div>
+                        )}
+
+                        <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                        <p className="text-gray-400 mb-8 h-10">{plan.description}</p>
+
+                        <div className="mb-8 flex items-baseline gap-1">
+                            <span className="text-5xl font-black tracking-tighter">
+                                ${billingPeriod === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice}
+                            </span>
+                            <span className="text-gray-500 font-medium">
+                                /{billingPeriod === 'monthly' ? 'mo' : 'yr'}
+                            </span>
+                        </div>
+
+                        <button
+                            onClick={() => handleSubscribe(plan.id)}
+                            className={`w-full py-4 rounded-xl font-bold transition mb-8 relative overflow-hidden group/btn ${plan.popular
+                                    ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-[0_0_20px_rgba(139,92,246,0.4)]'
+                                    : 'border border-white/20 hover:bg-white/5'
                                 }`}
                         >
-                            {plan.popular && (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm px-4 py-1 rounded-full">
-                                    Most Popular
-                                </div>
-                            )}
-
-                            <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                            <p className="text-gray-400 mb-6">{plan.description}</p>
-
-                            <div className="mb-6">
-                                <span className="text-5xl font-bold">
-                                    ${billingPeriod === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice}
-                                </span>
-                                <span className="text-gray-400">
-                                    /{billingPeriod === 'monthly' ? 'month' : 'year'}
-                                </span>
-                            </div>
-
-                            <button
-                                onClick={() => handleSubscribe(plan.id)}
-                                className={`w-full py-4 rounded-xl font-semibold transition mb-8 ${plan.popular
-                                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'
-                                        : 'border border-purple-500 text-purple-400 hover:bg-purple-500/10'
-                                    }`}
-                            >
-                                {plan.id === 'enterprise' ? 'Contact Sales' : 'Get Started'}
-                            </button>
-
-                            <ul className="space-y-4">
-                                {plan.features.map((feature, i) => (
-                                    <li key={i} className="flex items-center gap-3">
-                                        <span className="text-green-400">✓</span>
-                                        <span className="text-gray-300">{feature}</span>
-                                    </li>
-                                ))}
-                                {plan.notIncluded.map((feature, i) => (
-                                    <li key={i} className="flex items-center gap-3 opacity-50">
-                                        <span className="text-gray-500">✕</span>
-                                        <span className="text-gray-500">{feature}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* FAQ */}
-            <section className="container mx-auto px-6 py-20">
-                <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
-                <div className="max-w-3xl mx-auto space-y-6">
-                    <div className="bg-white/5 rounded-xl p-6">
-                        <h3 className="font-semibold mb-2">Can I cancel anytime?</h3>
-                        <p className="text-gray-400">Yes, you can cancel your subscription at any time from your dashboard.</p>
-                    </div>
-                    <div className="bg-white/5 rounded-xl p-6">
-                        <h3 className="font-semibold mb-2">Is there a free trial?</h3>
-                        <p className="text-gray-400">We offer a 7-day free trial for the Pro plan. No credit card required.</p>
-                    </div>
-                    <div className="bg-white/5 rounded-xl p-6">
-                        <h3 className="font-semibold mb-2">What payment methods do you accept?</h3>
-                        <p className="text-gray-400">We accept all major credit cards via Stripe (Visa, Mastercard, AMEX).</p>
-                    </div>
-                    <div className="bg-white/5 rounded-xl p-6">
-                        <h3 className="font-semibold mb-2">Can I upgrade or downgrade?</h3>
-                        <p className="text-gray-400">Yes, you can change plans anytime. The difference is prorated.</p>
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA */}
-            <section className="container mx-auto px-6 py-20">
-                <div className="max-w-3xl mx-auto bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-3xl p-12 text-center border border-purple-500/30">
-                    <h2 className="text-3xl font-bold mb-4">Still have questions?</h2>
-                    <p className="text-gray-400 mb-8">
-                        Our team is here to help. Schedule a demo or chat with us.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition">
-                            Schedule Demo
+                            <span className="relative z-10">{plan.id === 'enterprise' ? 'Contact Sales' : 'Get Started'}</span>
+                            {plan.popular && <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />}
                         </button>
-                        <button className="border border-white/30 text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/5 transition">
-                            Contact Support
-                        </button>
-                    </div>
-                </div>
-            </section>
 
-            {/* Footer */}
-            <footer className="container mx-auto px-6 py-12 border-t border-white/10">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="flex items-center gap-2">
-                        <span className="text-xl">🔮</span>
-                        <span className="text-lg font-bold">VN30-Quantum</span>
-                    </div>
-                    <div className="flex items-center gap-6 text-gray-400">
-                        <a href="/terms" className="hover:text-white transition">Terms</a>
-                        <a href="/privacy" className="hover:text-white transition">Privacy</a>
-                        <a href="/affiliate" className="hover:text-white transition">Affiliate</a>
-                    </div>
-                    <div className="text-gray-500">© 2026 VN30-Quantum</div>
-                </div>
-            </footer>
-        </div>
+                        <ul className="space-y-4">
+                            {plan.features.map((feature, idx) => (
+                                <li key={idx} className="flex items-center gap-3">
+                                    <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xs">✓</div>
+                                    <span className="text-gray-300 font-medium">{feature}</span>
+                                </li>
+                            ))}
+                            {plan.notIncluded.map((feature, idx) => (
+                                <li key={idx} className="flex items-center gap-3 opacity-40">
+                                    <div className="w-5 h-5 rounded-full bg-gray-700/50 flex items-center justify-center text-gray-500 text-xs">✕</div>
+                                    <span className="text-gray-500">{feature}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </motion.div>
+                ))}
+            </div>
+        </PageWrapper>
     );
 }
