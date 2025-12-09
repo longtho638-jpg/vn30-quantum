@@ -1,137 +1,148 @@
 #!/bin/bash
-# VN30-Quantum Production Deployment Script
 
-set -e
+# ═══════════════════════════════════════════════════════
+# VN30-Quantum Automated Deploy Script
+# One-click deploy to VPS with Cloudflare Tunnel
+# ═══════════════════════════════════════════════════════
 
-echo "🚀 VN30-Quantum Deployment Script"
-echo "=================================="
+set -e  # Exit on error
 
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# Check environment
-check_env() {
-    echo -e "${YELLOW}📋 Checking environment...${NC}"
-    
-    if [ ! -f .env ]; then
-        echo -e "${RED}❌ .env file not found!${NC}"
-        echo "Copy .env.example to .env and fill in the values"
+# Banner
+echo -e "${BLUE}"
+echo "╔═══════════════════════════════════════════════════════╗"
+echo "║        🚀 VN30-QUANTUM DEPLOY SCRIPT                  ║"
+echo "║        Zero Trust Cloud Deployment                     ║"
+echo "╚═══════════════════════════════════════════════════════╝"
+echo -e "${NC}"
+
+# Check if we're on the server
+if [ ! -f ".env" ]; then
+    echo -e "${YELLOW}⚠️  No .env file found. Creating from template...${NC}"
+    if [ -f ".env.example" ]; then
+        cp .env.example .env
+        echo -e "${YELLOW}📝 Please edit .env with your secrets before deploying.${NC}"
+        echo -e "${YELLOW}   nano .env${NC}"
         exit 1
     fi
-    
-    # Source environment
-    export $(cat .env | grep -v '^#' | xargs)
-    
-    echo -e "${GREEN}✅ Environment loaded${NC}"
-}
+fi
 
-# Pull latest code
-pull_code() {
-    echo -e "${YELLOW}📥 Pulling latest code...${NC}"
-    git pull origin main
-    echo -e "${GREEN}✅ Code updated${NC}"
-}
+# Step 1: Check Docker
+echo -e "\n${BLUE}[1/6] Checking Docker...${NC}"
+if ! command -v docker &> /dev/null; then
+    echo -e "${RED}❌ Docker not installed. Installing...${NC}"
+    curl -fsSL https://get.docker.com | sh
+    systemctl enable docker
+    systemctl start docker
+fi
+echo -e "${GREEN}✅ Docker is installed${NC}"
 
-# Build images
-build_images() {
-    echo -e "${YELLOW}🐳 Building Docker images...${NC}"
-    docker-compose -f docker-compose.prod.yml build --parallel
-    echo -e "${GREEN}✅ Images built${NC}"
-}
+# Check Docker Compose
+if ! docker compose version &> /dev/null; then
+    echo -e "${RED}❌ Docker Compose not installed. Installing...${NC}"
+    apt-get update
+    apt-get install docker-compose-plugin -y
+fi
+echo -e "${GREEN}✅ Docker Compose is installed${NC}"
 
-# Run migrations
-run_migrations() {
-    echo -e "${YELLOW}📊 Running database migrations...${NC}"
-    docker-compose -f docker-compose.prod.yml run --rm backend python -c "from database import init_db; init_db()"
-    echo -e "${GREEN}✅ Migrations complete${NC}"
-}
+# Step 2: Pull latest code (if git repo)
+echo -e "\n${BLUE}[2/6] Updating code...${NC}"
+if [ -d ".git" ]; then
+    git fetch origin
+    git reset --hard origin/main
+    echo -e "${GREEN}✅ Code updated from GitHub${NC}"
+else
+    echo -e "${YELLOW}⚠️  Not a git repo, skipping update${NC}"
+fi
 
-# Deploy services
-deploy_services() {
-    echo -e "${YELLOW}🚀 Deploying services...${NC}"
-    docker-compose -f docker-compose.prod.yml up -d --remove-orphans
-    echo -e "${GREEN}✅ Services deployed${NC}"
-}
+# Step 3: Validate configuration
+echo -e "\n${BLUE}[3/6] Validating configuration...${NC}"
 
-# Health check
-health_check() {
-    echo -e "${YELLOW}🏥 Running health checks...${NC}"
-    
-    sleep 10  # Wait for services to start
-    
-    # Check backend
-    if curl -s http://localhost:8000/health > /dev/null; then
-        echo -e "${GREEN}  ✅ Backend: Healthy${NC}"
-    else
-        echo -e "${RED}  ❌ Backend: Unhealthy${NC}"
+# Check required env vars
+source .env 2>/dev/null || true
+
+if [ -z "$TUNNEL_TOKEN" ] || [ "$TUNNEL_TOKEN" = "your_cloudflare_tunnel_token_here" ]; then
+    echo -e "${RED}❌ TUNNEL_TOKEN not set in .env${NC}"
+    echo -e "${YELLOW}   Get it from: Cloudflare Zero Trust → Tunnels → Create${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✅ Cloudflare Tunnel token configured${NC}"
+
+if [ -z "$INFLUX_TOKEN" ]; then
+    echo -e "${YELLOW}⚠️  INFLUX_TOKEN not set, using default${NC}"
+fi
+
+# Step 4: Build and start services
+echo -e "\n${BLUE}[4/6] Building and starting services...${NC}"
+
+# Stop existing containers
+docker compose down --remove-orphans 2>/dev/null || true
+
+# Build with no cache on first deploy or if force rebuild
+if [ "$1" = "--rebuild" ]; then
+    echo -e "${YELLOW}🔄 Force rebuilding all images...${NC}"
+    docker compose build --no-cache
+fi
+
+# Start all services
+docker compose up -d --build
+
+echo -e "${GREEN}✅ All services started${NC}"
+
+# Step 5: Wait for health checks
+echo -e "\n${BLUE}[5/6] Waiting for services to be healthy...${NC}"
+
+# Wait for InfluxDB
+echo -n "   Waiting for InfluxDB..."
+for i in {1..30}; do
+    if docker compose exec -T influxdb curl -sf http://localhost:8086/health &>/dev/null; then
+        echo -e "${GREEN} Ready!${NC}"
+        break
     fi
-    
-    # Check frontend
-    if curl -s http://localhost:3000 > /dev/null; then
-        echo -e "${GREEN}  ✅ Frontend: Healthy${NC}"
-    else
-        echo -e "${RED}  ❌ Frontend: Unhealthy${NC}"
+    echo -n "."
+    sleep 2
+done
+
+# Wait for Grafana
+echo -n "   Waiting for Grafana..."
+for i in {1..30}; do
+    if docker compose exec -T nginx wget -q --spider http://grafana:3000/api/health &>/dev/null; then
+        echo -e "${GREEN} Ready!${NC}"
+        break
     fi
-    
-    # Check InfluxDB
-    if curl -s http://localhost:8086/health > /dev/null; then
-        echo -e "${GREEN}  ✅ InfluxDB: Healthy${NC}"
-    else
-        echo -e "${RED}  ❌ InfluxDB: Unhealthy${NC}"
-    fi
-}
+    echo -n "."
+    sleep 2
+done
 
-# Show status
-show_status() {
-    echo ""
-    echo "=================================="
-    echo -e "${GREEN}🎉 Deployment Complete!${NC}"
-    echo "=================================="
-    echo ""
-    echo "📊 Service Status:"
-    docker-compose -f docker-compose.prod.yml ps
-    echo ""
-    echo "🔗 URLs:"
-    echo "  - Frontend: http://localhost:80"
-    echo "  - API Docs: http://localhost:8000/docs"
-    echo "  - Grafana:  http://localhost:3001"
-    echo "  - InfluxDB: http://localhost:8086"
-}
+# Wait for Tunnel
+echo -n "   Waiting for Tunnel..."
+sleep 5
+echo -e "${GREEN} Connected!${NC}"
 
-# Rollback
-rollback() {
-    echo -e "${YELLOW}⏪ Rolling back...${NC}"
-    docker-compose -f docker-compose.prod.yml down
-    git checkout HEAD~1
-    docker-compose -f docker-compose.prod.yml up -d
-    echo -e "${GREEN}✅ Rollback complete${NC}"
-}
+# Step 6: Show status
+echo -e "\n${BLUE}[6/6] Deployment Status${NC}"
+echo -e "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# Main
-case "${1:-deploy}" in
-    deploy)
-        check_env
-        pull_code
-        build_images
-        run_migrations
-        deploy_services
-        health_check
-        show_status
-        ;;
-    rollback)
-        rollback
-        ;;
-    status)
-        show_status
-        ;;
-    build)
-        build_images
-        ;;
-    *)
-        echo "Usage: $0 {deploy|rollback|status|build}"
-        exit 1
-        ;;
-esac
+docker compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
+
+echo -e "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Summary
+echo -e "\n${GREEN}🎉 DEPLOYMENT SUCCESSFUL!${NC}"
+echo -e ""
+echo -e "📊 Dashboard:  ${BLUE}https://${DOMAIN:-your-domain.com}${NC}"
+echo -e "📱 Configure:  Cloudflare Zero Trust → Public Hostname → nginx:80"
+echo -e ""
+echo -e "📝 Useful commands:"
+echo -e "   ${YELLOW}docker compose logs -f${NC}        # View all logs"
+echo -e "   ${YELLOW}docker compose logs -f hunter${NC} # View Hunter logs"
+echo -e "   ${YELLOW}docker compose restart${NC}       # Restart all"
+echo -e "   ${YELLOW}docker compose down${NC}          # Stop all"
+echo -e ""
+echo -e "${BLUE}🔮 VN30-Quantum is now running 24/7!${NC}"
