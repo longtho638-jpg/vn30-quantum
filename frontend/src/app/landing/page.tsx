@@ -1,307 +1,201 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+
+// Dynamically import 3D components to avoid SSR issues
+const SceneContainer = dynamic(() => import('@/components/Three/SceneContainer'), { ssr: false });
+const SentinelGlobe = dynamic(() => import('@/components/Three/SentinelGlobe'), { ssr: false });
 
 export default function LandingPage() {
-    const [email, setEmail] = useState('');
-    const [submitted, setSubmitted] = useState(false);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        // TODO: Integrate with email service
-        setSubmitted(true);
-    };
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-            {/* Header */}
-            <header className="container mx-auto px-6 py-4">
-                <nav className="flex items-center justify-between">
+        <div className="min-h-screen bg-[#0f172a] text-white overflow-hidden font-sans selection:bg-purple-500/30">
+
+            {/* Background Gradients */}
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-purple-600/20 rounded-full blur-[120px] mix-blend-screen" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen" />
+                <div className="absolute top-[40%] left-[30%] w-[30vw] h-[30vw] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" />
+            </div>
+
+            {/* Navigation */}
+            <nav className="fixed top-0 w-full z-50 backdrop-blur-md border-b border-white/5 bg-[#0f172a]/70">
+                <div className="container mx-auto px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <span className="text-2xl">🔮</span>
-                        <span className="text-xl font-bold text-white">VN30-Quantum</span>
+                        <span className="text-2xl animate-pulse">🔮</span>
+                        <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            VN30-Quantum
+                        </span>
                     </div>
-                    <div className="hidden md:flex items-center gap-8">
-                        <a href="#features" className="text-gray-300 hover:text-white transition">Features</a>
-                        <a href="#pricing" className="text-gray-300 hover:text-white transition">Pricing</a>
-                        <a href="#api" className="text-gray-300 hover:text-white transition">API</a>
-                        <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition">
-                            Login
-                        </button>
+                    <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+                        <Link href="#features" className="hover:text-white transition">Features</Link>
+                        <Link href="/pricing" className="hover:text-white transition">Pricing</Link>
+                        <Link href="/docs/getting-started" className="hover:text-white transition">Docs</Link>
                     </div>
-                </nav>
+                    <div className="flex items-center gap-4">
+                        <Link href="/auth/login" className="text-sm font-medium hover:text-white transition text-gray-400">
+                            Sign In
+                        </Link>
+                        <Link
+                            href="/beta"
+                            className="px-6 py-2.5 bg-white text-black rounded-lg font-bold hover:bg-gray-200 transition shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]"
+                        >
+                            Get Access
+                        </Link>
+                    </div>
+                </div>
+            </nav>
+
+            {/* Hero Section with 3D Globe */}
+            <header className="relative pt-32 pb-20 container mx-auto px-6 z-10 flex flex-col md:flex-row items-center">
+                <div className="md:w-1/2 text-left z-20">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
+                            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                            <span className="text-sm font-medium text-green-400">System Online: All Systems Normal</span>
+                        </div>
+
+                        <h1 className="text-6xl md:text-7xl font-bold leading-tight mb-6">
+                            Analyze the Market <br />
+                            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent typing-effect">
+                                Like Iron Man
+                            </span>
+                        </h1>
+
+                        <p className="text-xl text-gray-400 mb-10 max-w-lg leading-relaxed">
+                            The world&apos;s most beautiful trading platform.
+                            AI-powered signals, real-time sentiment analysis, and 3D visualization for the VN30 index.
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <Link href="/beta" className="group relative px-8 py-4 bg-white text-black rounded-xl font-bold overflow-hidden">
+                                <span className="relative z-10 group-hover:text-black transition">Join Beta Waitlist</span>
+                                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 group-hover:opacity-100 transition duration-300 blur-xl" />
+                            </Link>
+                            <Link href="#demo" className="px-8 py-4 bg-white/5 border border-white/10 rounded-xl font-bold hover:bg-white/10 transition backdrop-blur-md flex items-center justify-center gap-2">
+                                <span>▶</span> Watch Demo
+                            </Link>
+                        </div>
+                    </motion.div>
+                </div>
+
+                {/* 3D Globe Container */}
+                <div className="md:w-1/2 h-[500px] md:h-[700px] absolute right-[-100px] top-20 md:relative md:right-auto md:top-auto opacity-50 md:opacity-100 pointer-events-none md:pointer-events-auto">
+                    <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-purple-500">Loading Hologram...</div>}>
+                        <SceneContainer className="w-full h-full">
+                            <SentinelGlobe />
+                        </SceneContainer>
+                    </Suspense>
+                </div>
             </header>
 
-            {/* Hero Section */}
-            <section className="container mx-auto px-6 py-20 text-center">
-                <div className="max-w-4xl mx-auto">
-                    <div className="inline-block px-4 py-2 bg-purple-500/20 rounded-full text-purple-300 text-sm mb-8">
-                        🚀 AI-Powered Trading Signals for VN30
-                    </div>
-                    <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-                        Trade Smarter with <br />
-                        <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            AI-Powered Signals
-                        </span>
-                    </h1>
-                    <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
-                        Real-time analysis of 30 VN30 stocks using RSI, MACD, Bollinger Bands,
-                        and AI price prediction. Get instant Telegram alerts for trading opportunities.
-                    </p>
-
-                    {/* CTA */}
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition shadow-lg shadow-purple-500/30">
-                            Start Free Trial
-                        </button>
-                        <button className="border border-gray-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white/5 transition">
-                            View Demo
-                        </button>
-                    </div>
-
-                    {/* Stats */}
-                    <div className="grid grid-cols-3 gap-8 mt-20 max-w-3xl mx-auto">
-                        <div className="text-center">
-                            <div className="text-4xl font-bold text-white">30</div>
-                            <div className="text-gray-400">VN30 Stocks</div>
+            {/* Stats Hologram Strip */}
+            <section className="border-y border-white/5 bg-black/20 backdrop-blur-sm transform rotate-[-1deg] scale-105 origin-left z-20 relative">
+                <div className="container mx-auto px-6 py-6 flex justify-between items-center overflow-x-auto gap-12 no-scrollbar">
+                    {[
+                        { label: 'VN30 Index', value: '1,245.67', change: '+1.2%', up: true },
+                        { label: 'AI Accuracy', value: '87.4%', change: '+0.5%', up: true },
+                        { label: 'Active Signals', value: '12', change: 'Strong Buy', up: true },
+                        { label: 'Latency', value: '45ms', change: '-5ms', up: true },
+                    ].map((stat, i) => (
+                        <div key={i} className="flex flex-col min-w-[150px]">
+                            <span className="text-xs text-gray-500 uppercase tracking-widest mb-1">{stat.label}</span>
+                            <div className="flex items-end gap-3">
+                                <span className="text-2xl font-mono font-bold text-white">{stat.value}</span>
+                                <span className={`text-sm font-bold ${stat.up ? 'text-green-400' : 'text-red-400'}`}>
+                                    {stat.change}
+                                </span>
+                            </div>
                         </div>
-                        <div className="text-center">
-                            <div className="text-4xl font-bold text-white">&lt;2s</div>
-                            <div className="text-gray-400">Signal Latency</div>
-                        </div>
-                        <div className="text-center">
-                            <div className="text-4xl font-bold text-white">24/7</div>
-                            <div className="text-gray-400">Monitoring</div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </section>
 
-            {/* Features Section */}
-            <section id="features" className="container mx-auto px-6 py-20">
-                <h2 className="text-3xl font-bold text-white text-center mb-16">
-                    Powerful Features for Serious Traders
-                </h2>
+            {/* Feature Grid - Glass Cards */}
+            <section id="features" className="container mx-auto px-6 py-32">
+                <div className="text-center mb-20">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-6">Quantum Technology</h2>
+                    <p className="text-gray-400 max-w-2xl mx-auto">
+                        Powered by advanced machine learning models and real-time data processing.
+                    </p>
+                </div>
+
                 <div className="grid md:grid-cols-3 gap-8">
-                    {/* Feature 1 */}
-                    <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-                        <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-6">
-                            <span className="text-2xl">🧠</span>
-                        </div>
-                        <h3 className="text-xl font-semibold text-white mb-4">AI Price Prediction</h3>
-                        <p className="text-gray-400">
-                            Linear Regression model trained on 30 candles predicts next closing price with high accuracy.
-                        </p>
-                    </div>
-
-                    {/* Feature 2 */}
-                    <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-                        <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mb-6">
-                            <span className="text-2xl">📊</span>
-                        </div>
-                        <h3 className="text-xl font-semibold text-white mb-4">Technical Analysis</h3>
-                        <p className="text-gray-400">
-                            RSI, MACD, Bollinger Bands, Stochastic, SMA/EMA calculated in real-time for all 30 stocks.
-                        </p>
-                    </div>
-
-                    {/* Feature 3 */}
-                    <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-                        <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-6">
-                            <span className="text-2xl">📱</span>
-                        </div>
-                        <h3 className="text-xl font-semibold text-white mb-4">Telegram Alerts</h3>
-                        <p className="text-gray-400">
-                            Instant notifications when STRONG_BUY or STRONG_SELL signals are detected.
-                        </p>
-                    </div>
-
-                    {/* Feature 4 */}
-                    <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-                        <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center mb-6">
-                            <span className="text-2xl">🛡️</span>
-                        </div>
-                        <h3 className="text-xl font-semibold text-white mb-4">Zero Trust Security</h3>
-                        <p className="text-gray-400">
-                            Enterprise-grade security with Cloudflare Tunnel and Email OTP authentication.
-                        </p>
-                    </div>
-
-                    {/* Feature 5 */}
-                    <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-                        <div className="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center mb-6">
-                            <span className="text-2xl">⚡</span>
-                        </div>
-                        <h3 className="text-xl font-semibold text-white mb-4">Real-time Dashboard</h3>
-                        <p className="text-gray-400">
-                            Grafana-powered dashboard with live charts, signal annotations, and performance metrics.
-                        </p>
-                    </div>
-
-                    {/* Feature 6 */}
-                    <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-                        <div className="w-12 h-12 bg-pink-500/20 rounded-xl flex items-center justify-center mb-6">
-                            <span className="text-2xl">🔌</span>
-                        </div>
-                        <h3 className="text-xl font-semibold text-white mb-4">API Access</h3>
-                        <p className="text-gray-400">
-                            REST API for integrating signals into your own trading systems and bots.
-                        </p>
-                    </div>
+                    {[
+                        {
+                            icon: '🧠',
+                            title: 'Neural Oracle',
+                            desc: 'Linear regression models trained on 10 years of market data to predict price movements.',
+                            color: 'from-purple-500/20 to-blue-500/20'
+                        },
+                        {
+                            icon: '⚡',
+                            title: 'Flash Signals',
+                            desc: 'Instant Telegram alerts sent <500ms after a market opportunity is detected.',
+                            color: 'from-blue-500/20 to-cyan-500/20'
+                        },
+                        {
+                            icon: '🛡️',
+                            title: 'Iron Dome',
+                            desc: 'Bank-grade security with Cloudflare Zero Trust and military-grade encryption.',
+                            color: 'from-emerald-500/20 to-green-500/20'
+                        }
+                    ].map((feature, i) => (
+                        <motion.div
+                            key={i}
+                            whileHover={{ y: -10, scale: 1.02 }}
+                            className={`p-8 rounded-3xl border border-white/10 bg-gradient-to-br ${feature.color} backdrop-blur-xl relative overflow-hidden group`}
+                        >
+                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition duration-500" />
+                            <div className="text-5xl mb-6 bg-white/10 w-20 h-20 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                                {feature.icon}
+                            </div>
+                            <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
+                            <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
+                        </motion.div>
+                    ))}
                 </div>
             </section>
 
-            {/* Pricing Section */}
-            <section id="pricing" className="container mx-auto px-6 py-20">
-                <h2 className="text-3xl font-bold text-white text-center mb-4">
-                    Simple, Transparent Pricing
-                </h2>
-                <p className="text-gray-400 text-center mb-16 max-w-2xl mx-auto">
-                    Start free, upgrade when you need more. No hidden fees.
-                </p>
+            {/* CTA Section */}
+            <section className="container mx-auto px-6 pb-32">
+                <div className="relative rounded-[3rem] overflow-hidden p-12 md:p-24 text-center border border-white/10">
+                    <div className="absolute inset-0 bg-gradient-to-b from-purple-900/40 to-black/40 backdrop-blur-xl" />
+                    <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-20" />
 
-                <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                    {/* Starter */}
-                    <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-                        <h3 className="text-xl font-semibold text-white mb-2">Starter</h3>
-                        <p className="text-gray-400 mb-6">Perfect for beginners</p>
-                        <div className="mb-6">
-                            <span className="text-4xl font-bold text-white">$29</span>
-                            <span className="text-gray-400">/month</span>
-                        </div>
-                        <ul className="space-y-4 mb-8">
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> 5 stocks monitoring
-                            </li>
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> Daily signals
-                            </li>
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> Email alerts
-                            </li>
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> Basic dashboard
-                            </li>
-                        </ul>
-                        <button className="w-full py-3 border border-purple-500 text-purple-400 rounded-xl hover:bg-purple-500/10 transition">
-                            Get Started
-                        </button>
+                    <div className="relative z-10">
+                        <h2 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-b from-white to-gray-500 bg-clip-text text-transparent">
+                            Ready for the Future?
+                        </h2>
+                        <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
+                            Join the waitlist today and get 50% off the Pro plan for life.
+                            Only 100 spots available for the beta.
+                        </p>
+                        <Link
+                            href="/beta"
+                            className="inline-block px-12 py-5 bg-white text-black text-lg font-bold rounded-full hover:scale-105 transition duration-300 shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+                        >
+                            Reserve My Spot
+                        </Link>
                     </div>
-
-                    {/* Pro - Featured */}
-                    <div className="bg-gradient-to-b from-purple-600/20 to-pink-600/20 backdrop-blur-lg rounded-2xl p-8 border border-purple-500/50 relative">
-                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm px-4 py-1 rounded-full">
-                            Most Popular
-                        </div>
-                        <h3 className="text-xl font-semibold text-white mb-2">Pro</h3>
-                        <p className="text-gray-400 mb-6">For active traders</p>
-                        <div className="mb-6">
-                            <span className="text-4xl font-bold text-white">$99</span>
-                            <span className="text-gray-400">/month</span>
-                        </div>
-                        <ul className="space-y-4 mb-8">
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> All 30 VN30 stocks
-                            </li>
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> Real-time signals
-                            </li>
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> Telegram alerts
-                            </li>
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> AI price prediction
-                            </li>
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> Advanced dashboard
-                            </li>
-                        </ul>
-                        <button className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition">
-                            Upgrade to Pro
-                        </button>
-                    </div>
-
-                    {/* Enterprise */}
-                    <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-                        <h3 className="text-xl font-semibold text-white mb-2">Enterprise</h3>
-                        <p className="text-gray-400 mb-6">For institutions</p>
-                        <div className="mb-6">
-                            <span className="text-4xl font-bold text-white">$499</span>
-                            <span className="text-gray-400">/month</span>
-                        </div>
-                        <ul className="space-y-4 mb-8">
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> Everything in Pro
-                            </li>
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> API access
-                            </li>
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> Custom alerts
-                            </li>
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> Priority support
-                            </li>
-                            <li className="flex items-center gap-3 text-gray-300">
-                                <span className="text-green-400">✓</span> White-label option
-                            </li>
-                        </ul>
-                        <button className="w-full py-3 border border-purple-500 text-purple-400 rounded-xl hover:bg-purple-500/10 transition">
-                            Contact Sales
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            {/* Waitlist Section */}
-            <section className="container mx-auto px-6 py-20">
-                <div className="max-w-3xl mx-auto bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-3xl p-12 text-center border border-purple-500/30">
-                    <h2 className="text-3xl font-bold text-white mb-4">
-                        Join the Waitlist
-                    </h2>
-                    <p className="text-gray-400 mb-8">
-                        Be the first to access VN30-Quantum when we launch. Early adopters get 50% off for life.
-                    </p>
-                    {!submitted ? (
-                        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Enter your email"
-                                className="flex-1 px-6 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
-                                required
-                            />
-                            <button
-                                type="submit"
-                                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition"
-                            >
-                                Join Waitlist
-                            </button>
-                        </form>
-                    ) : (
-                        <div className="text-green-400 text-lg">
-                            ✅ You&apos;re on the list! We&apos;ll notify you when we launch.
-                        </div>
-                    )}
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="container mx-auto px-6 py-12 border-t border-white/10">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="flex items-center gap-2">
-                        <span className="text-xl">🔮</span>
-                        <span className="text-lg font-bold text-white">VN30-Quantum</span>
+            <footer className="border-t border-white/5 bg-black/40 backdrop-blur-xl py-12">
+                <div className="container mx-auto px-6 text-center text-gray-500 text-sm">
+                    <div className="flex justify-center gap-8 mb-8">
+                        <Link href="#" className="hover:text-white transition">Twitter</Link>
+                        <Link href="#" className="hover:text-white transition">GitHub</Link>
+                        <Link href="#" className="hover:text-white transition">Telegram</Link>
                     </div>
-                    <div className="flex items-center gap-6 text-gray-400">
-                        <a href="#" className="hover:text-white transition">Terms</a>
-                        <a href="#" className="hover:text-white transition">Privacy</a>
-                        <a href="#" className="hover:text-white transition">Contact</a>
-                    </div>
-                    <div className="text-gray-500">
-                        © 2026 VN30-Quantum. All rights reserved.
-                    </div>
+                    <p>© 2026 VN30-Quantum. Built with 🔮 by Solo Founder.</p>
                 </div>
             </footer>
         </div>

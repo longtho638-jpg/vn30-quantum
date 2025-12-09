@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 // Initialize Stripe
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecretKey ? new Stripe(stripeSecretKey, {
-    apiVersion: '2023-10-16',
+    apiVersion: '2024-12-18.acacia' as any, // Cast to any to avoid strict version check
 }) : null;
 
 // Stripe Price IDs (create these in Stripe Dashboard)

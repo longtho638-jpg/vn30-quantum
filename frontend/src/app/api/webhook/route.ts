@@ -6,7 +6,7 @@ const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 const stripe = stripeSecretKey ? new Stripe(stripeSecretKey, {
-    apiVersion: '2023-10-16',
+    apiVersion: '2024-12-18.acacia' as any, // Cast to any to avoid strict version check
 }) : null;
 
 // POST /api/webhook - Handle Stripe webhooks
