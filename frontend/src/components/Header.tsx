@@ -11,7 +11,11 @@ const Header: FC<HeaderProps> = ({ currentTime, isConnected }) => {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
+        // Client-side only
+        const isBrowser = typeof window !== 'undefined';
+        if (isBrowser) {
+            setMounted(true);
+        }
     }, []);
 
     const formatTime = (date: Date) => {

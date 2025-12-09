@@ -27,11 +27,15 @@ export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState('HPG');
-  const [isConnected, setIsConnected] = useState(true);
+  const isConnected = true;
 
   useEffect(() => {
-    setMounted(true);
-    setCurrentTime(new Date());
+    // Set mounted flag immediately
+    const mountedNow = true;
+    if (mountedNow) {
+      setMounted(true);
+      setCurrentTime(new Date());
+    }
 
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);

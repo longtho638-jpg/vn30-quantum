@@ -281,7 +281,7 @@ export default function LandingPage() {
                         </form>
                     ) : (
                         <div className="text-green-400 text-lg">
-                            ✅ You're on the list! We'll notify you when we launch.
+                            ✅ You&apos;re on the list! We&apos;ll notify you when we launch.
                         </div>
                     )}
                 </div>

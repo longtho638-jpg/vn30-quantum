@@ -93,6 +93,7 @@ export async function POST(request: NextRequest) {
         }
 
         const plan = PLANS[planId];
+        console.log(`Creating checkout for ${email} - Plan: ${plan.name}`);
 
         // TODO: Initialize Stripe and create checkout session
         // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
