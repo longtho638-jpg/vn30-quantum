@@ -1,93 +1,130 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
+import { Suspense, useRef } from 'react';
 
-// Dynamically import 3D components to avoid SSR issues
+// Dynamically import 3D components
 const SceneContainer = dynamic(() => import('@/components/Three/SceneContainer'), { ssr: false });
 const SentinelGlobe = dynamic(() => import('@/components/Three/SentinelGlobe'), { ssr: false });
+const AuroraBackground = dynamic(() => import('@/components/Three/AuroraBackground'), { ssr: false });
 
 export default function LandingPage() {
-    return (
-        <div className="min-h-screen bg-[#0f172a] text-white overflow-hidden font-sans selection:bg-purple-500/30">
+    const scrollRef = useRef(null);
+    const { scrollYProgress } = useScroll({ target: scrollRef });
 
-            {/* Background Gradients */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-purple-600/20 rounded-full blur-[120px] mix-blend-screen" />
-                <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen" />
-                <div className="absolute top-[40%] left-[30%] w-[30vw] h-[30vw] bg-emerald-500/10 rounded-full blur-[100px] mix-blend-screen animate-pulse" />
+    // Parallax effects
+    const yHero = useTransform(scrollYProgress, [0, 0.2], [0, 100]);
+    const opacityHero = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+
+    return (
+        <div ref={scrollRef} className="min-h-screen bg-[#0f172a] text-white overflow-hidden font-sans selection:bg-cyan-500/30">
+
+            {/* 🌌 WEBGL AURORA BACKGROUND */}
+            <div className="fixed inset-0 z-0">
+                <Suspense fallback={<div className="w-full h-full bg-[#0f172a]" />}>
+                    <SceneContainer className="w-full h-full">
+                        <AuroraBackground />
+                    </SceneContainer>
+                </Suspense>
             </div>
 
             {/* Navigation */}
-            <nav className="fixed top-0 w-full z-50 backdrop-blur-md border-b border-white/5 bg-[#0f172a]/70">
+            <nav className="fixed top-0 w-full z-50 backdrop-blur-md border-b border-white/5 bg-[#0f172a]/20">
                 <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <span className="text-2xl animate-pulse">🔮</span>
-                        <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            VN30-Quantum
+                    <div className="flex items-center gap-2 cursor-pointer group">
+                        <span className="text-2xl group-hover:animate-spin transition-transform duration-700">🔮</span>
+                        <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent group-hover:tracking-wider transition-all duration-300">
+                            VN30-QUANTUM
                         </span>
                     </div>
-                    <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-                        <Link href="#features" className="hover:text-white transition">Features</Link>
-                        <Link href="/pricing" className="hover:text-white transition">Pricing</Link>
-                        <Link href="/docs/getting-started" className="hover:text-white transition">Docs</Link>
+                    <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+                        {['Features', 'Pricing', 'Docs'].map((item) => (
+                            <Link key={item} href={`#${item.toLowerCase()}`} className="relative group overflow-hidden">
+                                <span className="relative z-10 group-hover:text-cyan-400 transition">{item}</span>
+                                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-cyan-400 transform scale-x-0 group-hover:scale-x-100 transition duration-300" />
+                            </Link>
+                        ))}
                     </div>
                     <div className="flex items-center gap-4">
-                        <Link href="/auth/login" className="text-sm font-medium hover:text-white transition text-gray-400">
-                            Sign In
+                        <Link href="/auth/login" className="text-sm font-medium hover:text-white transition text-gray-300">
+                            LOG IN
                         </Link>
                         <Link
                             href="/beta"
-                            className="px-6 py-2.5 bg-white text-black rounded-lg font-bold hover:bg-gray-200 transition shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]"
+                            className="relative px-6 py-2.5 rounded-lg font-bold overflow-hidden group"
                         >
-                            Get Access
+                            <div className="absolute inset-0 bg-white group-hover:scale-105 transition duration-300" />
+                            <span className="relative z-10 text-black group-hover:tracking-wide transition-all">GET ACCESS</span>
                         </Link>
                     </div>
                 </div>
             </nav>
 
-            {/* Hero Section with 3D Globe */}
-            <header className="relative pt-32 pb-20 container mx-auto px-6 z-10 flex flex-col md:flex-row items-center">
-                <div className="md:w-1/2 text-left z-20">
+            {/* 🎬 HERO SECTION (Cinematic) */}
+            <header className="relative min-h-screen flex items-center justify-center container mx-auto px-6 z-10 pt-20">
+                <motion.div
+                    style={{ y: yHero, opacity: opacityHero }}
+                    className="text-center w-full max-w-5xl mx-auto"
+                >
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 1, ease: 'easeOut' }}
                     >
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
-                            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                            <span className="text-sm font-medium text-green-400">System Online: All Systems Normal</span>
-                        </div>
-
-                        <h1 className="text-6xl md:text-7xl font-bold leading-tight mb-6">
-                            Analyze the Market <br />
-                            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent typing-effect">
-                                Like Iron Man
-                            </span>
-                        </h1>
-
-                        <p className="text-xl text-gray-400 mb-10 max-w-lg leading-relaxed">
-                            The world&apos;s most beautiful trading platform.
-                            AI-powered signals, real-time sentiment analysis, and 3D visualization for the VN30 index.
-                        </p>
-
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <Link href="/beta" className="group relative px-8 py-4 bg-white text-black rounded-xl font-bold overflow-hidden">
-                                <span className="relative z-10 group-hover:text-black transition">Join Beta Waitlist</span>
-                                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 group-hover:opacity-100 transition duration-300 blur-xl" />
-                            </Link>
-                            <Link href="#demo" className="px-8 py-4 bg-white/5 border border-white/10 rounded-xl font-bold hover:bg-white/10 transition backdrop-blur-md flex items-center justify-center gap-2">
-                                <span>▶</span> Watch Demo
-                            </Link>
+                        <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-black/30 border border-cyan-500/30 mb-12 backdrop-blur-xl">
+                            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#22d3ee]" />
+                            <span className="text-sm font-medium text-cyan-300 tracking-widest uppercase">System Online // 2026.01.01</span>
                         </div>
                     </motion.div>
-                </div>
 
-                {/* 3D Globe Container */}
-                <div className="md:w-1/2 h-[500px] md:h-[700px] absolute right-[-100px] top-20 md:relative md:right-auto md:top-auto opacity-50 md:opacity-100 pointer-events-none md:pointer-events-auto">
-                    <Suspense fallback={<div className="w-full h-full flex items-center justify-center text-purple-500">Loading Hologram...</div>}>
+                    <motion.h1
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="text-7xl md:text-9xl font-black leading-tight mb-8 tracking-tighter mix-blend-overlay"
+                    >
+                        TRADE THE <br />
+                        <span className="bg-gradient-to-b from-white to-transparent bg-clip-text text-transparent opacity-80">
+                            FUTURE
+                        </span>
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ y: 30, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 0.4 }}
+                        className="text-2xl text-gray-300 mb-12 max-w-2xl mx-auto font-light leading-relaxed"
+                    >
+                        The world's first <span className="text-cyan-400 font-semibold">AI Oracle</span> for VN30.
+                        <br />Institutional-grade signals. Zero latency.
+                    </motion.p>
+
+                    <motion.div
+                        initial={{ y: 30, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 0.6 }}
+                        className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+                    >
+                        <Link href="/beta" className="group relative w-64 h-16 bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden flex items-center justify-center">
+                            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition duration-500" />
+                            <div className="absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r from-cyan-400 to-purple-400 transform scale-x-0 group-hover:scale-x-100 transition duration-500" />
+                            <span className="text-lg font-bold tracking-widest group-hover:scale-105 transition duration-300">START BETA</span>
+                        </Link>
+
+                        <Link href="#demo" className="text-gray-400 hover:text-white transition flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-white transition">
+                                ▶
+                            </div>
+                            <span className="font-medium tracking-wide">WATCH DEMO</span>
+                        </Link>
+                    </motion.div>
+                </motion.div>
+
+                {/* 3D GLOBE OVERLAY (Floating in background) */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] -z-10 opacity-40 pointer-events-none">
+                    <Suspense fallback={null}>
                         <SceneContainer className="w-full h-full">
                             <SentinelGlobe />
                         </SceneContainer>
@@ -95,107 +132,93 @@ export default function LandingPage() {
                 </div>
             </header>
 
-            {/* Stats Hologram Strip */}
-            <section className="border-y border-white/5 bg-black/20 backdrop-blur-sm transform rotate-[-1deg] scale-105 origin-left z-20 relative">
-                <div className="container mx-auto px-6 py-6 flex justify-between items-center overflow-x-auto gap-12 no-scrollbar">
-                    {[
-                        { label: 'VN30 Index', value: '1,245.67', change: '+1.2%', up: true },
-                        { label: 'AI Accuracy', value: '87.4%', change: '+0.5%', up: true },
-                        { label: 'Active Signals', value: '12', change: 'Strong Buy', up: true },
-                        { label: 'Latency', value: '45ms', change: '-5ms', up: true },
-                    ].map((stat, i) => (
-                        <div key={i} className="flex flex-col min-w-[150px]">
-                            <span className="text-xs text-gray-500 uppercase tracking-widest mb-1">{stat.label}</span>
-                            <div className="flex items-end gap-3">
-                                <span className="text-2xl font-mono font-bold text-white">{stat.value}</span>
-                                <span className={`text-sm font-bold ${stat.up ? 'text-green-400' : 'text-red-400'}`}>
-                                    {stat.change}
-                                </span>
-                            </div>
-                        </div>
-                    ))}
+            {/* 🧬 HOLOGRAPHIC STATS STRIP (Liquid Glass) */}
+            <section className="relative z-20 py-12 border-y border-white/5 bg-white/5 backdrop-blur-xl">
+                <div className="container mx-auto px-6">
+                    <div className="flex justify-around items-center flex-wrap gap-12">
+                        {[
+                            { label: 'Market Cap', value: '$240B', color: 'text-cyan-400' },
+                            { label: 'AI Prediction', value: '94.2%', color: 'text-purple-400' },
+                            { label: 'Latency', value: '12ms', color: 'text-green-400' },
+                            { label: 'Traders', value: '12.5k', color: 'text-pink-400' },
+                        ].map((stat, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: i * 0.1 }}
+                                className="text-center group"
+                            >
+                                <div className="text-xs text-gray-500 uppercase tracking-[0.2em] mb-2 group-hover:text-white transition">{stat.label}</div>
+                                <div className={`text-5xl font-black ${stat.color} font-mono tracking-tighter`}>{stat.value}</div>
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
             </section>
 
-            {/* Feature Grid - Glass Cards */}
-            <section id="features" className="container mx-auto px-6 py-32">
-                <div className="text-center mb-20">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-6">Quantum Technology</h2>
-                    <p className="text-gray-400 max-w-2xl mx-auto">
-                        Powered by advanced machine learning models and real-time data processing.
-                    </p>
-                </div>
+            {/* 💠 FEATURE GRID (Refraction Cards) */}
+            <section id="features" className="container mx-auto px-6 py-40">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    className="text-center mb-32"
+                >
+                    <h2 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-gray-400 to-gray-600 bg-clip-text text-transparent mb-6">
+                        QUANTUM ADVANTAGE
+                    </h2>
+                    <div className="h-1 w-24 bg-gradient-to-r from-cyan-500 to-purple-500 mx-auto rounded-full" />
+                </motion.div>
 
                 <div className="grid md:grid-cols-3 gap-8">
                     {[
                         {
-                            icon: '🧠',
-                            title: 'Neural Oracle',
-                            desc: 'Linear regression models trained on 10 years of market data to predict price movements.',
-                            color: 'from-purple-500/20 to-blue-500/20'
+                            title: 'NEURAL CLOUD',
+                            desc: 'Real-time linear regression models processing millions of data points.',
+                            gradient: 'from-purple-500/10 to-blue-500/10'
                         },
                         {
-                            icon: '⚡',
-                            title: 'Flash Signals',
-                            desc: 'Instant Telegram alerts sent <500ms after a market opportunity is detected.',
-                            color: 'from-blue-500/20 to-cyan-500/20'
+                            title: 'ZERO LATENCY',
+                            desc: 'Edge-computed signals delivered via WebSocket in under 50ms.',
+                            gradient: 'from-cyan-500/10 to-emerald-500/10'
                         },
                         {
-                            icon: '🛡️',
-                            title: 'Iron Dome',
-                            desc: 'Bank-grade security with Cloudflare Zero Trust and military-grade encryption.',
-                            color: 'from-emerald-500/20 to-green-500/20'
+                            title: 'SENTINEL AI',
+                            desc: '24/7 autonomous monitoring with automated risk management.',
+                            gradient: 'from-pink-500/10 to-orange-500/10'
                         }
                     ].map((feature, i) => (
                         <motion.div
                             key={i}
-                            whileHover={{ y: -10, scale: 1.02 }}
-                            className={`p-8 rounded-3xl border border-white/10 bg-gradient-to-br ${feature.color} backdrop-blur-xl relative overflow-hidden group`}
+                            whileHover={{ scale: 1.05 }}
+                            className={`h-[400px] p-10 rounded-[2rem] border border-white/10 bg-gradient-to-br ${feature.gradient} backdrop-blur-2xl relative overflow-hidden group flex flex-col justify-end`}
                         >
-                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition duration-500" />
-                            <div className="text-5xl mb-6 bg-white/10 w-20 h-20 rounded-2xl flex items-center justify-center backdrop-blur-md">
-                                {feature.icon}
+                            {/* Glass Shine Effect */}
+                            <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition duration-500 pointer-events-none" />
+
+                            <h3 className="text-3xl font-bold mb-4">{feature.title}</h3>
+                            <p className="text-gray-400 leading-relaxed text-lg">{feature.desc}</p>
+
+                            {/* Decorative Number */}
+                            <div className="absolute top-6 right-8 text-9xl font-black text-white/5 pointer-events-none">
+                                0{i + 1}
                             </div>
-                            <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
-                            <p className="text-gray-400 leading-relaxed">{feature.desc}</p>
                         </motion.div>
                     ))}
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="container mx-auto px-6 pb-32">
-                <div className="relative rounded-[3rem] overflow-hidden p-12 md:p-24 text-center border border-white/10">
-                    <div className="absolute inset-0 bg-gradient-to-b from-purple-900/40 to-black/40 backdrop-blur-xl" />
-                    <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-20" />
-
-                    <div className="relative z-10">
-                        <h2 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-b from-white to-gray-500 bg-clip-text text-transparent">
-                            Ready for the Future?
-                        </h2>
-                        <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-                            Join the waitlist today and get 50% off the Pro plan for life.
-                            Only 100 spots available for the beta.
-                        </p>
-                        <Link
-                            href="/beta"
-                            className="inline-block px-12 py-5 bg-white text-black text-lg font-bold rounded-full hover:scale-105 transition duration-300 shadow-[0_0_40px_rgba(255,255,255,0.3)]"
-                        >
-                            Reserve My Spot
-                        </Link>
+            {/* FOOTER */}
+            <footer className="border-t border-white/10 py-12 bg-black/40 backdrop-blur-sm">
+                <div className="container mx-auto px-6 flex justify-between items-center text-gray-600 text-sm">
+                    <div>© 2026 VN30-QUANTUM</div>
+                    <div className="flex gap-8">
+                        <Link href="#" className="hover:text-white transition">LEGAL</Link>
+                        <Link href="#" className="hover:text-white transition">PRIVACY</Link>
+                        <Link href="#" className="hover:text-white transition">CONTACT</Link>
                     </div>
-                </div>
-            </section>
-
-            {/* Footer */}
-            <footer className="border-t border-white/5 bg-black/40 backdrop-blur-xl py-12">
-                <div className="container mx-auto px-6 text-center text-gray-500 text-sm">
-                    <div className="flex justify-center gap-8 mb-8">
-                        <Link href="#" className="hover:text-white transition">Twitter</Link>
-                        <Link href="#" className="hover:text-white transition">GitHub</Link>
-                        <Link href="#" className="hover:text-white transition">Telegram</Link>
-                    </div>
-                    <p>© 2026 VN30-Quantum. Built with 🔮 by Solo Founder.</p>
                 </div>
             </footer>
         </div>
