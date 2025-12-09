@@ -1,7 +1,9 @@
 version: '3.8'
 
 services:
-  # KHO CHỨA DỮ LIỆU (DATABASE)
+  # ═══════════════════════════════════════════════════════
+  # KHO CHỨA DỮ LIỆU (TIME-SERIES DATABASE)
+  # ═══════════════════════════════════════════════════════
   influxdb:
     image: influxdb:2.7
     container_name: vn30_influxdb
@@ -10,25 +12,59 @@ services:
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
       - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=admin12345678 # Mật khẩu database
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin12345678
       - DOCKER_INFLUXDB_INIT_ORG=vnquant
       - DOCKER_INFLUXDB_INIT_BUCKET=market_data
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-auth-token
     volumes:
       - influxdb_data:/var/lib/influxdb2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
 
+  # ═══════════════════════════════════════════════════════
+  # CACHE LAYER (REDIS)
+  # ═══════════════════════════════════════════════════════
+  redis:
+    image: redis:7-alpine
+    container_name: vn30_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════
   # BẢNG ĐIỀU KHIỂN (DASHBOARD)
+  # ═══════════════════════════════════════════════════════
   grafana:
     image: grafana/grafana:latest
     container_name: vn30_grafana
     ports:
       - "3000:3000"
     depends_on:
-      - influxdb
+      influxdb:
+        condition: service_healthy
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana_data:/var/lib/grafana
+    restart: unless-stopped
 
-  # CON BOT SĂN DỮ LIỆU (AGENT)
+  # ═══════════════════════════════════════════════════════
+  # CON BOT SĂN DỮ LIỆU VN30 (HUNTER v2.0)
+  # ═══════════════════════════════════════════════════════
   hunter:
     build: ./hunter
     container_name: vn30_hunter
@@ -38,10 +74,22 @@ services:
       - INFLUX_TOKEN=my-super-secret-auth-token
       - INFLUX_ORG=vnquant
       - INFLUX_BUCKET=market_data
-      - TARGET_STOCK=HPG
+      # Multi-stock config (empty = all VN30)
+      - TARGET_STOCKS=
+      - REFRESH_INTERVAL=60
+      - HISTORY_DAYS=30
+      - BATCH_SIZE=5
+      - RATE_LIMIT_DELAY=0.5
+      # Redis cache
+      - REDIS_URL=redis://redis:6379
     depends_on:
-      - influxdb
+      influxdb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   influxdb_data:
   grafana_data:
+  redis_data:
+
