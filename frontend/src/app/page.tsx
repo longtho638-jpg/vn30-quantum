@@ -24,14 +24,30 @@ const marketStats = {
 };
 
 export default function Dashboard() {
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [mounted, setMounted] = useState(false);
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState('HPG');
   const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
+    setMounted(true);
+    setCurrentTime(new Date());
+
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Show loading during SSR
+  if (!mounted || !currentTime) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1a] flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⚛</div>
+          <div className="text-xl text-gray-400">Loading VN30-Quantum...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0f1a]">
@@ -58,8 +74,8 @@ export default function Dashboard() {
                       key={sym}
                       onClick={() => setSelectedSymbol(sym)}
                       className={`px-3 py-1 rounded-lg text-sm transition-all ${selectedSymbol === sym
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-700/50 hover:bg-gray-600/50'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-700/50 hover:bg-gray-600/50'
                         }`}
                     >
                       {sym}

@@ -37,18 +37,37 @@ const generateCandleData = (days: number = 30) => {
     return data;
 };
 
+interface CandleData {
+    date: string;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+}
+
 const TradingChart: FC<TradingChartProps> = ({ symbol }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [data, setData] = useState(generateCandleData(30));
-    const [hoveredCandle, setHoveredCandle] = useState<number | null>(null);
+    const [mounted, setMounted] = useState(false);
+    const [data, setData] = useState<CandleData[]>([]);
 
-    // Regenerate data when symbol changes
+    // Only generate data on client side
     useEffect(() => {
+        setMounted(true);
         setData(generateCandleData(30));
-    }, [symbol]);
+    }, []);
+
+    // Regenerate data when symbol changes (only on client)
+    useEffect(() => {
+        if (mounted) {
+            setData(generateCandleData(30));
+        }
+    }, [symbol, mounted]);
 
     // Draw chart
     useEffect(() => {
+        if (!mounted || data.length === 0) return;
+
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -138,26 +157,37 @@ const TradingChart: FC<TradingChartProps> = ({ symbol }) => {
         });
 
         // Draw latest price line
-        const latestPrice = data[data.length - 1].close;
-        const latestY = padding.top + (maxPrice - latestPrice) / priceRange * chartHeight;
+        if (data.length > 1) {
+            const latestPrice = data[data.length - 1].close;
+            const latestY = padding.top + (maxPrice - latestPrice) / priceRange * chartHeight;
 
-        ctx.strokeStyle = data[data.length - 1].close >= data[data.length - 2]?.close ? '#10b981' : '#ef4444';
-        ctx.setLineDash([5, 3]);
-        ctx.beginPath();
-        ctx.moveTo(padding.left, latestY);
-        ctx.lineTo(width - padding.right, latestY);
-        ctx.stroke();
-        ctx.setLineDash([]);
+            ctx.strokeStyle = data[data.length - 1].close >= data[data.length - 2].close ? '#10b981' : '#ef4444';
+            ctx.setLineDash([5, 3]);
+            ctx.beginPath();
+            ctx.moveTo(padding.left, latestY);
+            ctx.lineTo(width - padding.right, latestY);
+            ctx.stroke();
+            ctx.setLineDash([]);
 
-        // Latest price label
-        ctx.fillStyle = data[data.length - 1].close >= data[data.length - 2]?.close ? '#10b981' : '#ef4444';
-        ctx.fillRect(width - padding.right + 2, latestY - 10, 56, 20);
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 10px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(latestPrice.toFixed(0), width - padding.right + 30, latestY + 4);
+            // Latest price label
+            ctx.fillStyle = data[data.length - 1].close >= data[data.length - 2].close ? '#10b981' : '#ef4444';
+            ctx.fillRect(width - padding.right + 2, latestY - 10, 56, 20);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 10px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText(latestPrice.toFixed(0), width - padding.right + 30, latestY + 4);
+        }
 
-    }, [data, hoveredCandle]);
+    }, [data, mounted]);
+
+    // Show loading state during SSR
+    if (!mounted) {
+        return (
+            <div className="relative h-full flex items-center justify-center">
+                <div className="text-gray-500">Loading chart...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative h-full">
